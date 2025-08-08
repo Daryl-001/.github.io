@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邪恶后妈的MBTI性格测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#7f1d1d', // 深红色调，符合邪恶后妈主题
+                        secondary: '#4c1d95',
+                        accent: '#d97706',
+                        light: '#fef3c7',
+                        dark: '#1e293b'
+                    },
+                    fontFamily: {
+                        sans: ['Garamond', 'Georgia', 'serif'],
+                        display: ['Playfair Display', 'serif']
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+            .card-hover {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            }
+            .option-hover {
+                transition: all 0.2s ease;
+            }
+            .option-hover:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+            }
+            .progress-animation {
+                transition: width 0.5s ease-in-out;
+            }
+            .question-transition {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .firework {
+                position: absolute;
+                border-radius: 50%;
+                pointer-events: none;
+                animation: explode 1s ease-out forwards;
+            }
+            @keyframes explode {
+                0% { transform: scale(0); opacity: 1; }
+                50% { opacity: 1; }
+                100% { transform: scale(15); opacity: 0; }
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-amber-50 to-red-50 min-h-screen font-sans text-dark">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <header class="text-center mb-8 mt-4">
+            <h1 class="text-[clamp(2rem,5vw,3rem)] font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-shadow">
+                邪恶后妈的MBTI性格测试
+            </h1>
+            <!-- 已移除副标题 -->
+        </header>
+
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-8 overflow-hidden">
+            <div id="progress" class="h-full bg-gradient-to-r from-primary to-secondary progress-animation w-0"></div>
+        </div>
+
+        <div id="question-card" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 card-hover question-transition border-2 border-amber-100">
+            <div class="text-sm text-gray-500 mb-6 text-center">
+                <span id="progress-text">1/10</span>
+            </div>
+            <h2 id="question" class="text-xl md:text-2xl font-semibold mb-8 text-center"></h2>
+            <div class="flex flex-col space-y-4">
+                <button id="option1" class="option-hover bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium py-3 px-6 rounded-xl transition-all" onclick="selectOption(0)"></button>
+                <button id="option2" class="option-hover bg-red-100 hover:bg-red-200 text-red-800 font-medium py-3 px-6 rounded-xl transition-all" onclick="selectOption(1)"></button>
+            </div>
+        </div>
+
+        <div id="result" class="hidden bg-gradient-to-br from-amber-800 to-red-900 rounded-2xl shadow-xl p-8 text-white mt-8">
+            <div class="text-center">
+                <h2 id="result-title" class="text-4xl font-bold mb-4"></h2>
+                <div class="w-20 h-1 bg-white mx-auto mb-6 rounded-full"></div>
+                <p id="result-description" class="text-lg mb-6 leading-relaxed"></p>
+                <div id="result-details" class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-left mb-8">
+                    <h3 class="text-xl font-semibold mb-3 flex items-center">
+                        <i class="fa fa-black-tie mr-2"></i>统治风格解析
+                    </h3>
+                    <p id="result-details-text"></p>
+                </div>
+                <button id="restart" class="bg-white text-amber-800 hover:bg-gray-100 font-medium py-3 px-8 rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    重新评估你的统治力
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 邪恶后妈的MBTI问题库，每个问题对应一个维度
+        const questions = [
+            {
+                question: "当继子女打破了你最爱的花瓶，你会？",
+                options: ["冷静分析责任，制定严格的惩罚制度", "表面不动声色，暗中策划更隐蔽的报复"],
+                dimension: "EI" // 外向(E) vs 内向(I)
+            },
+            {
+                question: "你更关注继子女的哪些方面？",
+                options: ["他们是否严格遵守你的每一条家规", "他们内心的恐惧和可以利用的弱点"],
+                dimension: "SN" // 感觉(S) vs 直觉(N)
+            },
+            {
+                question: "在制定家庭规则时，你优先考虑？",
+                options: ["规则的公平性和执行力度", "如何最大化巩固自己的权威和控制力"],
+                dimension: "TF" // 思考(T) vs 情感(F)
+            },
+            {
+                question: "面对不听话的继子女，你倾向于？",
+                options: ["有明确的惩罚计划并严格执行", "随机应变，让他们永远猜不到你的下一步"],
+                dimension: "JP" // 判断(J) vs 知觉(P)
+            },
+            {
+                question: "当配偶质疑你的教育方式时，你会？",
+                options: ["据理力争，证明自己的方法最有效", "暂时妥协，背后继续按自己的方式行事"],
+                dimension: "EI"
+            },
+            {
+                question: "你更喜欢哪种控制方式？",
+                options: ["建立明确的等级制度和奖惩体系", "通过心理操纵让他们自愿服从"],
+                dimension: "SN"
+            },
+            {
+                question: "处理家庭冲突时，你通常会？",
+                options: ["直接指出问题，让犯错者付出代价", "巧妙转移焦点，让别人承担责任"],
+                dimension: "TF"
+            },
+            {
+                question: "对于重要的家庭活动，你会？",
+                options: ["提前几周规划好每一个细节", "临时改变计划，测试大家的反应"],
+                dimension: "JP"
+            },
+            {
+                question: "你从何处获得掌控家庭的能量？",
+                options: ["看到家人对你的敬畏和服从", "私下享受操纵他人命运的快感"],
+                dimension: "EI"
+            },
+            {
+                question: "你更擅长哪种'教育'方式？",
+                options: ["制定严格的作息和行为规范", "创造复杂的心理游戏让他们自我怀疑"],
+                dimension: "SN"
+            }
+        ];
+
+        // 邪恶后妈的MBTI类型描述
+        const mbtiTypes = {
+            "ISTJ": {
+                name: "铁腕管家",
+                description: "你是一位注重规则、纪律严明的邪恶后妈，擅长建立严密的家庭管控体系。",
+                details: "作为铁腕管家型邪恶后妈，你相信秩序和规则是家庭统治的基石。你制定详细的家规，每一条都有相应的惩罚措施。你注重细节，会记录继子女的每一个小错误，在合适的时机进行清算。你的权威建立在一致性和不可动摇的原则上，虽然手段强硬，但至少'公平'——对每个孩子都同样严格。"
+            },
+            "ISFJ": {
+                name: "双面看护",
+                description: "你表面温柔体贴，暗地里却编织着无形的控制网，是最难以察觉的危险。",
+                details: "双面看护型的你擅长伪装成慈爱的母亲形象，在配偶面前表现得无微不至，却在背后对继子女施加心理压力。你记得每一个可以利用的细节，善于用'为你好'的名义实施控制。你不喜欢直接冲突，而是通过巧妙的暗示和情感操纵达到目的，让孩子们即使感到不适也说不出具体的问题所在。"
+            },
+            "INFJ": {
+                name: "心理操纵者",
+                description: "你能洞察继子女的内心弱点，擅长设计复杂的心理游戏来摧毁他们的自信。",
+                details: "作为心理操纵者，你拥有惊人的洞察力，能迅速发现继子女的恐惧和不安全感。你不满足于表面的服从，而是追求彻底的心理控制。你会精心设计情境，让他们自我怀疑，逐渐失去判断能力。你的策略长远而隐秘，常常需要数月甚至数年才能看到效果，但一旦成功，就能达到完美的控制。"
+            },
+            "INTJ": {
+                name: "战略女王",
+                description: "你是一位运筹帷幄的战略家，将家庭视为棋盘，每一步都在你的掌控之中。",
+                details: "战略女王型的你将家庭管理视为一场长期战役，拥有清晰的目标和详细的计划。你不关心短期的小冲突，而是着眼于长期的权力巩固。你善于利用家庭成员之间的矛盾，分而治之。你的决定基于冷静的分析而非情绪，即使是最亲近的人也可能成为你计划中的棋子。你总能预见各种可能的结果，并准备好应对方案。"
+            },
+            "ISTP": {
+                name: "即兴惩戒者",
+                description: "你冷静务实，擅长根据情况即兴发挥，用最直接有效的方式解决'问题'。",
+                details: "作为即兴惩戒者，你不喜欢复杂的计划，更相信自己的即时判断。当继子女犯错时，你能迅速想出最适合当下情况的惩罚方式，往往简单直接却效果显著。你注重实际效果而非形式，可能会用意想不到的方式让他们记住教训。你擅长利用环境和手边的资源，将日常物品变成有效的惩戒工具。"
+            },
+            "ISFP": {
+                name: "情感操控者",
+                description: "你敏感而善变，能精准把握他人情绪，用情感波动来控制家庭氛围。",
+                details: "情感操控者型的你对家庭情绪氛围有惊人的掌控力，能根据自己的需要随意改变气氛。你可能前一秒温柔体贴，下一秒就因小事大发雷霆，让继子女始终处于紧张不安的状态。你不喜欢明确的规则，而是让他们永远猜测你的喜好。你擅长利用内疚感和同情心，让他们主动服从你的要求，甚至为你辩护。"
+            },
+            "INFP": {
+                name: "理想主义暴君",
+                description: "你有一套完美的家庭理念，会不惜一切代价将继子女塑造成你想要的样子。",
+                details: "作为理想主义暴君，你对'完美家庭'有强烈的执念，并坚信自己知道什么是最好的。你会用自己的理想标准来要求继子女，任何偏离都会被视为不可原谅的错误。你不接受任何妥协，即使手段极端也要实现自己的理想。你可能会为继子女编织一个美好的未来蓝图，却用残酷的手段逼迫他们达到目标。"
+            },
+            "INTP": {
+                name: "规则设计师",
+                description: "你为家庭设计复杂的规则系统，享受看着他人在你的规则中挣扎的乐趣。",
+                details: "规则设计师型的你痴迷于构建复杂而精妙的家庭规则体系。这些规则往往相互关联，形成一个难以逃脱的网络。你喜欢智力上的优越感，会设计一些看似公平却暗藏陷阱的规则。你享受观察继子女如何尝试理解和遵守这些规则，以及他们失败时的反应。对你来说，家庭就是一个巨大的社会实验，而你是唯一的研究者。"
+            },
+            "ESTP": {
+                name: "公开威吓者",
+                description: "你直接、果断，喜欢用公开的威吓和惩罚来展示自己的权威。",
+                details: "公开威吓者型的你相信'杀鸡儆猴'的效果，喜欢在家庭聚会等公开场合实施惩罚，以展示自己的绝对权威。你反应迅速，脾气可能很暴躁，但惩罚过后也可能很快恢复常态，让继子女难以预测。你务实且直接，不喜欢拐弯抹角，会明确告诉他们不服从的后果。你的权威建立在恐惧之上，而你对此毫不掩饰。"
+            },
+            "ESFP": {
+                name: "戏剧女王",
+                description: "你将家庭生活变成一场戏剧，擅长用表演和情绪操控来达到目的。",
+                details: "戏剧女王型的你喜欢成为家庭的中心，擅长用夸张的情绪表演来控制局面。你可能会在客人面前表现得像个完美母亲，却在转身的瞬间给继子女一个警告的眼神。你擅长利用社交场合来孤立不听话的孩子，让他们在亲戚朋友面前感到羞耻。你的手段变化多端，充满戏剧性，让家庭生活永远不会乏味。"
+            },
+            "ENFP": {
+                name: "魅力操纵者",
+                description: "你充满魅力，能轻易赢得他人信任，再利用这份信任达到控制目的。",
+                details: "魅力操纵者型的你天生具有吸引力，能轻易赢得配偶和其他人的信任。你擅长讲故事和描绘美好愿景，让继子女暂时忘记你的严格。你能迅速与他人建立情感连接，然后利用这种连接来施加影响。你不喜欢强制手段，而是更喜欢让他们'自愿'服从。你的控制像温水煮青蛙，在不知不觉中达到完全掌控。"
+            },
+            "ENTP": {
+                name: "辩论大师",
+                description: "你能把黑说成白，擅长用逻辑陷阱和语言技巧让继子女承认莫须有的错误。",
+                details: "辩论大师型的你拥有出色的口才和逻辑思维，能在任何争论中占据上风。你擅长设置语言陷阱，让继子女不知不觉中承认自己没有做过的事情。你喜欢智力上的较量，会故意挑起争论，然后享受胜利的快感。你能把最不合理的规则解释得合情合理，让他们哑口无言。对你来说，控制不仅是权力，更是一种智力上的优越感。"
+            },
+            "ESTJ": {
+                name: "家庭独裁者",
+                description: "你是家庭中说一不二的独裁者，建立了严格的等级制度和不容置疑的规则。",
+                details: "家庭独裁者型的你相信等级制度是维持家庭秩序的唯一方式，而你自然处于金字塔顶端。你制定的规则详细而严格，涵盖生活的方方面面。你要求绝对的服从和尊重，任何质疑都会被视为挑战权威。你可能会建立一套复杂的奖惩系统，让继子女时刻处于竞争状态。在你的家庭中，效率和纪律高于一切，情感和个性则被视为干扰。"
+            },
+            "ESFJ": {
+                name: "社交暴君",
+                description: "你擅长利用社会规范和舆论压力，让继子女在社交圈中抬不起头。",
+                details: "社交暴君型的你深谙社会规则和人情世故，擅长利用这些来达到控制目的。你可能会在亲戚邻里面前散布关于继子女的负面信息，或者故意在社交场合让他们难堪。你懂得如何利用社会期望来施压，让他们为了面子而服从你的要求。你表面上可能非常关心他人看法，实际上却将其作为控制工具。"
+            },
+            "ENFJ": {
+                name: "伪善导师",
+                description: "你伪装成智慧的导师，用看似有益的建议引导继子女走向你预设的道路。",
+                details: "伪善导师型的你擅长扮演智慧、关怀的形象，让继子女甚至配偶都相信你是为他们好。你会提供看似有益的建议，实则引导他们走向对你有利的方向。你能精准把握每个人的野心和弱点，用'为你着想'的名义操控他们的决定。你的控制如此巧妙，以至于很多人到最后都感激你的'指导'。"
+            },
+            "ENTJ": {
+                name: "帝国建造者",
+                description: "你将家庭视为自己的帝国，致力于建立一个以你为中心的家族权力体系。",
+                details: "帝国建造者型的你有宏大的愿景，不仅满足于控制现在的家庭，还着眼于长远的家族影响力。你擅长识人用人，能准确判断每个家庭成员的价值和威胁。你会建立复杂的联盟和制衡体系，确保自己的绝对统治。你不介意使用严厉甚至残酷的手段来消除威胁，为自己的'帝国'扫清障碍。对你来说，家庭不仅是生活场所，更是你权力和影响力的延伸。"
+            }
+        };
+
+        let currentQuestionIndex = 0;
+        // 计分卡：记录每个维度的倾向
+        const scores = {
+            "EI": 0, // 正数倾向E，负数倾向I
+            "SN": 0, // 正数倾向S，负数倾向N
+            "TF": 0, // 正数倾向T，负数倾向F
+            "JP": 0  // 正数倾向J，负数倾向P
+        };
+
+        // 显示当前问题
+        function showQuestion() {
+            const questionElement = document.getElementById('question');
+            const option1Element = document.getElementById('option1');
+            const option2Element = document.getElementById('option2');
+            const progressTextElement = document.getElementById('progress-text');
+            const progressElement = document.getElementById('progress');
+
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            option1Element.textContent = currentQuestion.options[0];
+            option2Element.textContent = currentQuestion.options[1];
+
+            // 添加问题过渡动画
+            questionElement.classList.add('question-transition');
+            setTimeout(() => {
+                questionElement.classList.remove('question-transition');
+            }, 500);
+
+            // 更新进度
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressElement.style.width = `${progress}%`;
+            progressTextElement.textContent = `${currentQuestionIndex + 1}/${questions.length}`;
+        }
+
+        // 选择答案
+        function selectOption(optionIndex) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const dimension = currentQuestion.dimension;
+            
+            // 根据选择更新对应维度的分数
+            // 选第一个选项加1分，选第二个选项减1分
+            scores[dimension] += (optionIndex === 0) ? 1 : -1;
+            
+            // 为选项添加选中效果
+            const selectedButton = optionIndex === 0 ? 
+                document.getElementById('option1') : 
+                document.getElementById('option2');
+            
+            selectedButton.classList.add('scale-95', 'opacity-70');
+            setTimeout(() => {
+                selectedButton.classList.remove('scale-95', 'opacity-70');
+                
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    showQuestion();
+                } else {
+                    calculateResult();
+                }
+            }, 200);
+        }
+
+        // 计算测试结果
+        function calculateResult() {
+            // 根据分数确定每个维度的倾向
+            const e = scores["EI"] > 0 ? 'E' : 'I';
+            const n = scores["SN"] < 0 ? 'N' : 'S'; // 注意这里是反向的
+            const t = scores["TF"] > 0 ? 'T' : 'F';
+            const j = scores["JP"] > 0 ? 'J' : 'P';
+
+            const resultType = e + n + t + j;
+            const typeInfo = mbtiTypes[resultType] || {
+                name: "神秘掌控者",
+                description: `你的邪恶后妈类型是 ${resultType}`,
+                details: "你拥有独特的统治风格，难以被归类，但同样能有效地掌控家庭局面。每个邪恶后妈都是独一无二的，你的方法或许是最适合你的。"
+            };
+
+            showResult(resultType, typeInfo);
+        }
+
+        // 显示测试结果
+        function showResult(resultType, typeInfo) {
+            const questionCard = document.getElementById('question-card');
+            const resultElement = document.getElementById('result');
+            const resultTitle = document.getElementById('result-title');
+            const resultDescription = document.getElementById('result-description');
+            const resultDetailsText = document.getElementById('result-details-text');
+
+            // 隐藏问题卡片，显示结果
+            questionCard.style.display = 'none';
+            resultTitle.textContent = `${resultType} - ${typeInfo.name}`;
+            resultDescription.textContent = typeInfo.description;
+            resultDetailsText.textContent = typeInfo.details;
+            
+            // 平滑显示结果
+            resultElement.style.display = 'block';
+            resultElement.style.opacity = '0';
+            resultElement.style.transform = 'translateY(20px)';
+            resultElement.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                resultElement.style.opacity = '1';
+                resultElement.style.transform = 'translateY(0)';
+                createFireworks();
+            }, 100);
+        }
+
+        // 创建烟花效果
+        function createFireworks() {
+            const numFireworks = 50;
+            const colors = [
+                '#ef4444', '#f97316', '#ca8a04', 
+                '#c084fc', '#7e22ce', '#dc2626'
+            ];
+            
+            for (let i = 0; i < numFireworks; i++) {
+                const firework = document.createElement('div');
+                firework.classList.add('firework');
+                
+                // 随机位置
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                firework.style.left = `${x}vw`;
+                firework.style.top = `${y}vh`;
+                
+                // 随机大小和颜色
+                const size = Math.random() * 5 + 3;
+                firework.style.width = `${size}px`;
+                firework.style.height = `${size}px`;
+                firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 随机动画延迟和持续时间
+                const delay = Math.random() * 2;
+                const duration = Math.random() * 1 + 0.5;
+                firework.style.animationDelay = `${delay}s`;
+                firework.style.animationDuration = `${duration}s`;
+                
+                document.body.appendChild(firework);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    firework.remove();
+                }, (delay + duration) * 1000);
+            }
+        }
+
+        // 重新开始测试
+        function restartTest() {
+            currentQuestionIndex = 0;
+            // 重置分数
+            Object.keys(scores).forEach(key => {
+                scores[key] = 0;
+            });
+            
+            const questionCard = document.getElementById('question-card');
+            const resultElement = document.getElementById('result');
+            
+            // 隐藏结果，显示问题卡片
+            resultElement.style.display = 'none';
+            questionCard.style.display = 'block';
+            
+            // 重置进度条
+            document.getElementById('progress').style.width = '0%';
+            
+            // 显示第一个问题
+            setTimeout(showQuestion, 300);
+        }
+
+        // 初始化页面，显示第一个问题
+        showQuestion();
+
+        // 为重启按钮添加点击事件
+        document.getElementById('restart').addEventListener('click', restartTest);
+    </script>
+</body>
+
+</html>
+    
